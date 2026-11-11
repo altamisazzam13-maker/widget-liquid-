@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OS 26 Liquid Widget</title>
+  <style>
+    :root {
+      /* Variabel warna liquid */
+      --liquid-1: #6366f1; /* Indigo */
+      --liquid-2: #ec4899; /* Pink */
+      --liquid-3: #06b6d4; /* Cyan */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      /* Font bawaan sistem yang paling modern */
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      /* Background transparent penting biar nyatu sama wallpaper HP */
+      background-color: transparent; 
+      overflow: hidden;
+    }
+
+    /* Container utama widget */
+    .widget-container {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Efek Liquid / Blobs */
+    .blob {
+      position: absolute;
+      filter: blur(35px);
+      z-index: 1;
+      opacity: 0.85;
+      animation: morph 8s ease-in-out infinite;
+    }
+
+    .blob-1 {
+      width: 180px;
+      height: 180px;
+      background: var(--liquid-1);
+      border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%;
+      top: 10%;
+      left: 10%;
+    }
+
+    .blob-2 {
+      width: 200px;
+      height: 200px;
+      background: var(--liquid-2);
+      border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+      bottom: 10%;
+      right: 10%;
+      animation-delay: -3s;
+    }
+    
+    .blob-3 {
+      width: 150px;
+      height: 150px;
+      background: var(--liquid-3);
+      border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%;
+      bottom: 20%;
+      left: 20%;
+      animation-delay: -5s;
+    }
+
+    @keyframes morph {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.15) rotate(25deg); }
+    }
+
+    /* Kaca (Glass) Utama */
+    .glass-panel {
+      position: relative;
+      z-index: 2;
+      width: 90%;
+      height: 90%;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
+      border-radius: 40px; /* Lengkungan modern OS */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+    }
+
+    .time-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 0.85;
+    }
+
+    .time {
+      font-size: 5.5rem;
+      font-weight: 900; /* Super bold ala OS modern */
+      letter-spacing: -3px;
+      text-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .date {
+      margin-top: 25px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="widget-container">
+    <!-- Liquid Animasi -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Glass Panel -->
+    <div class="glass-panel">
+      <div class="time-wrapper">
+        <div class="time" id="clock">00:00</div>
+      </div>
+      <div class="date" id="date">MEMUAT...</div>
+    </div>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours();
+      let m = now.getMinutes();
+      
+      h = h < 10 ? '0' + h : h;
+      m = m < 10 ? '0' + m : m;
+      
+      document.getElementById('clock').innerText = `${h}:${m}`;
+
+      const days = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+      
+      const dayName = days[now.getDay()];
+      const dateNum = now.getDate();
+      const monthName = months[now.getMonth()];
+      
+      document.getElementById('date').innerText = `${dayName}, ${dateNum} ${monthName}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock(); 
+  </script>
+</body>
+</html>
