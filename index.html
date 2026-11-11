@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OS 26 Liquid Widget</title>
+  <title>iOS Glass Text Clock - Custom</title>
   <style>
     :root {
-      /* Variabel warna liquid */
-      --liquid-1: #6366f1; /* Indigo */
-      --liquid-2: #ec4899; /* Pink */
-      --liquid-3: #06b6d4; /* Cyan */
+      /* Nilai default (bakal ditimpa oleh JavaScript kalau udah disetting) */
+      --glass-opacity: 0.15;
+      --stroke-width: 2px;
+      --shadow-blur: 5px;
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      /* Font bawaan sistem yang paling modern */
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
@@ -25,154 +24,244 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      /* Background transparent penting biar nyatu sama wallpaper HP */
       background-color: transparent; 
       overflow: hidden;
     }
 
-    /* Container utama widget */
     .widget-container {
-      position: relative;
-      width: 320px;
-      height: 320px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Efek Liquid / Blobs */
-    .blob {
-      position: absolute;
-      filter: blur(35px);
-      z-index: 1;
-      opacity: 0.85;
-      animation: morph 8s ease-in-out infinite;
-    }
-
-    .blob-1 {
-      width: 180px;
-      height: 180px;
-      background: var(--liquid-1);
-      border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%;
-      top: 10%;
-      left: 10%;
-    }
-
-    .blob-2 {
-      width: 200px;
-      height: 200px;
-      background: var(--liquid-2);
-      border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
-      bottom: 10%;
-      right: 10%;
-      animation-delay: -3s;
-    }
-    
-    .blob-3 {
-      width: 150px;
-      height: 150px;
-      background: var(--liquid-3);
-      border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%;
-      bottom: 20%;
-      left: 20%;
-      animation-delay: -5s;
-    }
-
-    @keyframes morph {
-      0%, 100% { transform: scale(1) rotate(0deg); }
-      50% { transform: scale(1.15) rotate(25deg); }
-    }
-
-    /* Kaca (Glass) Utama */
-    .glass-panel {
-      position: relative;
-      z-index: 2;
-      width: 90%;
-      height: 90%;
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
-      border-radius: 40px; /* Lengkungan modern OS */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: #ffffff;
-    }
-
-    .time-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      line-height: 0.85;
-    }
-
-    .time {
-      font-size: 5.5rem;
-      font-weight: 900; /* Super bold ala OS modern */
-      letter-spacing: -3px;
-      text-shadow: 0 10px 20px rgba(0,0,0,0.3);
-      background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      justify-content: center;
+      width: 100%;
+      text-align: center;
     }
 
     .date {
-      margin-top: 25px;
-      font-size: 1.1rem;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+      margin-bottom: -15px; 
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); 
+      z-index: 2;
+    }
+
+    /* Efek Kaca yang terhubung ke variabel CSS */
+    .time {
+      font-size: 9.5rem; 
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: rgba(255, 255, 255, 0.9);
-      background: rgba(0, 0, 0, 0.2);
-      padding: 8px 16px;
-      border-radius: 20px;
+      letter-spacing: -4px; 
+      
+      /* Opacity dikontrol variabel --glass-opacity */
+      color: rgba(255, 255, 255, var(--glass-opacity)); 
+      
+      /* Outline dikontrol variabel --stroke-width */
+      -webkit-text-stroke: var(--stroke-width) rgba(255, 255, 255, 0.6); 
+      
+      /* Shadow dikontrol variabel --shadow-blur */
+      text-shadow: 
+        -2px -2px calc(var(--shadow-blur) * 0.8) rgba(255, 255, 255, 0.4), 
+         3px  3px var(--shadow-blur) rgba(0, 0, 0, 0.5),       
+         0px 15px 30px rgba(0, 0, 0, 0.3);      
+    }
+
+    /* --- UI PENGATURAN (SETTINGS) --- */
+    .btn-gear {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      font-size: 1.2rem;
+      cursor: pointer;
       backdrop-filter: blur(10px);
+      z-index: 10;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+    .btn-gear:hover { opacity: 1; }
+
+    .settings-panel {
+      position: fixed;
+      bottom: -100%;
+      left: 5%;
+      width: 90%;
+      background: rgba(30, 30, 30, 0.65);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 25px;
+      padding: 20px;
+      color: white;
+      transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 100;
+    }
+    .settings-panel.active { bottom: 20px; }
+
+    .settings-panel h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .slider-group { margin-bottom: 15px; }
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    /* Styling Slider */
+    input[type=range] {
+      width: 100%;
+      appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      margin-top: -7px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .btn-close {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <div class="widget-container">
-    <!-- Liquid Animasi -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+  <!-- Tombol Settings -->
+  <button class="btn-gear" id="btnGear">⚙️</button>
 
-    <!-- Glass Panel -->
-    <div class="glass-panel">
-      <div class="time-wrapper">
-        <div class="time" id="clock">00:00</div>
-      </div>
-      <div class="date" id="date">MEMUAT...</div>
+  <div class="widget-container">
+    <div class="date" id="date">Mon Jan 12</div>
+    <div class="time" id="clock">06:07</div>
+  </div>
+
+  <!-- Panel Pengaturan Slider -->
+  <div class="settings-panel" id="settingsPanel">
+    <h3>Font & Glass Effect</h3>
+    
+    <div class="slider-group">
+      <label><span>Opacity (Kaca Dalam)</span> <span id="valOpacity">15%</span></label>
+      <input type="range" id="slideOpacity" min="0" max="100" value="15">
     </div>
+
+    <div class="slider-group">
+      <label><span>Outline (Tebal Garis)</span> <span id="valStroke">2px</span></label>
+      <input type="range" id="slideStroke" min="0" max="80" value="20">
+    </div>
+
+    <div class="slider-group">
+      <label><span>Glass Shadow (Emboss)</span> <span id="valShadow">5px</span></label>
+      <input type="range" id="slideShadow" min="0" max="25" value="5">
+    </div>
+
+    <button class="btn-close" id="btnClose">Selesai</button>
   </div>
 
   <script>
+    // --- LOGIKA JAM & TANGGAL ---
     function updateClock() {
       const now = new Date();
       let h = now.getHours();
       let m = now.getMinutes();
-      
       h = h < 10 ? '0' + h : h;
       m = m < 10 ? '0' + m : m;
-      
       document.getElementById('clock').innerText = `${h}:${m}`;
 
-      const days = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
-      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
-      
-      const dayName = days[now.getDay()];
-      const dateNum = now.getDate();
-      const monthName = months[now.getMonth()];
-      
-      document.getElementById('date').innerText = `${dayName}, ${dateNum} ${monthName}`;
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      document.getElementById('date').innerText = `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- LOGIKA PENGATURAN (SLIDER & LOCALSTORAGE) ---
+    const root = document.documentElement;
+    const slideOpacity = document.getElementById('slideOpacity');
+    const slideStroke = document.getElementById('slideStroke');
+    const slideShadow = document.getElementById('slideShadow');
+    
+    // Fungsi untuk load data yang tersimpan
+    function loadSettings() {
+      const savedOpacity = localStorage.getItem('glassOpacity');
+      const savedStroke = localStorage.getItem('strokeWidth');
+      const savedShadow = localStorage.getItem('shadowBlur');
+
+      if(savedOpacity !== null) {
+        slideOpacity.value = savedOpacity;
+        applySettings();
+      }
+      if(savedStroke !== null) slideStroke.value = savedStroke;
+      if(savedShadow !== null) slideShadow.value = savedShadow;
+      applySettings();
     }
 
-    setInterval(updateClock, 1000);
-    updateClock(); 
+    // Fungsi untuk nerapin nilai ke CSS
+    function applySettings() {
+      // Hitung nilai asli
+      const opacityVal = slideOpacity.value / 100;
+      const strokeVal = (slideStroke.value / 10) + 'px';
+      const shadowVal = slideShadow.value + 'px';
+
+      // Update Teks Label di Panel
+      document.getElementById('valOpacity').innerText = slideOpacity.value + '%';
+      document.getElementById('valStroke').innerText = strokeVal;
+      document.getElementById('valShadow').innerText = shadowVal;
+
+      // Update Variabel CSS
+      root.style.setProperty('--glass-opacity', opacityVal);
+      root.style.setProperty('--stroke-width', strokeVal);
+      root.style.setProperty('--shadow-blur', shadowVal);
+
+      // Simpan ke local storage
+      localStorage.setItem('glassOpacity', slideOpacity.value);
+      localStorage.setItem('strokeWidth', slideStroke.value);
+      localStorage.setItem('shadowBlur', slideShadow.value);
+    }
+
+    // Event Listener buat Slider (Berubah realtime pas digeser)
+    slideOpacity.addEventListener('input', applySettings);
+    slideStroke.addEventListener('input', applySettings);
+    slideShadow.addEventListener('input', applySettings);
+
+    // Toggle Panel Animasi
+    const panel = document.getElementById('settingsPanel');
+    document.getElementById('btnGear').addEventListener('click', () => {
+      panel.classList.add('active');
+    });
+    document.getElementById('btnClose').addEventListener('click', () => {
+      panel.classList.remove('active');
+    });
+
+    // Load saat pertama kali widget dibuka
+    loadSettings();
   </script>
 </body>
 </html>
